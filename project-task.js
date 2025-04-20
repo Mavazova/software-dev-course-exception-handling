@@ -33,14 +33,18 @@ const readlineSync = require('readline-sync');
 let animals = [];
 let fees = [];
 function addAnimal(name, fee) {
-    if (!name || fee < 0) {
-        throw new Error("Invalid animal name or adoption fee!");
+
+    if (!name || name.trim() === "") {
+        throw new Error("Invalid animal name! Cannot be blank");
     }
-    animals.push(name);
+    if(fee < 0 ){
+        throw new Error("Fee cannot be 0 or less!");
+    }
+    animals.push(name.trim());
     fees.push(fee);
 }
 function getAdoptionFee(animalName) {
-    let index = animals.indexOf(animalName);
+    let index = animals.indexOf(animalName.trim());
     if (index === -1) {
         throw new Error("Animal not found in records!");
     }
@@ -49,7 +53,9 @@ function getAdoptionFee(animalName) {
 // Main program
 console.log("Welcome to the Pet Shelter System");
 while (true) {
-    let action = readlineSync.question("Choose an action: 'add', 'fee', or 'exit': ").toLowerCase();
+    try {
+        let action = readlineSync.question("Choose an action: 'add', 'fee', or 'exit': ").toLowerCase();
+    
     if (action === "exit") {
         console.log("Goodbye!");
         break;
@@ -57,13 +63,26 @@ while (true) {
     if (action === "add") {
         let animal = readlineSync.question("Enter the animal's name: ");
         let fee = Number(readlineSync.question("Enter the adoption fee: "));
+       try {
         addAnimal(animal, fee);
-        console.log(`${animal} added with a fee of $${fee}.`);
+        console.log(`${animal.trim()} added with a fee of $${fee}.`);
+       } catch (error) {
+        console.log("Error", error.message);
+       }
     } else if (action === "fee") {
         let animal = readlineSync.question("Enter the animal's name to find its adoption fee: ");
-        console.log(`${animal}'s adoption fee is $${getAdoptionFee(animal)}.`);
+
+        try {
+            let fee = getAdoptionFee(animal);
+            console.log(`${animal.trim()}'s adoption fee is $${fee}.`);
+        } catch (error) {
+            console.log("Error:", error.message);
+        }
     } else {
         console.log("Invalid action. Please choose 'add', 'fee', or 'exit'.");
+    }
+    } catch (error) {
+        console.log("Unexpected error", error.message);
     }
 }
 
